@@ -1,12 +1,13 @@
 (ns ring-app.core
   (:require
-   [reitit.ring :as reitit]
+   [clojure.core :as c]
    [muuntaja.middleware :as muuntaja]
+   [reitit.ring :as reitit]
    [ring.adapter.jetty :as jetty]
    [ring.middleware.reload :refer [wrap-reload]]
    [ring.util.http-response :as response]
    [selmer.parser :as selmer]
-   [clojure.core :as c]))
+   [selmer.filters :as filters]))
 
 ;; Use selmer to create HTML template
 (selmer/render-file "hello.html" {:name "Hoon" :items (range 10)})
@@ -15,6 +16,16 @@
 (selmer/render
  "<p>Hello {{user.first}} {{user.last}}!</p>"
  {:user {:first "Hoon" :last "Wee"}})
+
+;; We can add filters, which preprocesses 
+;; the data before being rendered in HTML.
+(filters/add-filter! :empty? empty?)
+(selmer/render
+ "{% if files|empty? %}no files{% else %}files{% endif %}"
+ {:files []})
+
+(filters/add-filter! :foo (fn [x] [:safe (.toUpperCase x)]))
+(selmer/render "{{x|foo}}" {:x "<div>I'm safe</div>"})
 
 (defn html-handler [request-map]
   (response/ok
