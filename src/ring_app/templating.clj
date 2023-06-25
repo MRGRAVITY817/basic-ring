@@ -25,7 +25,7 @@
 ;; {% image "src" %}
 (selmer/add-tag!
  :image
- (fn [args context-map] (str "<img src=" (first args) "/>")))
+ (fn [args _] (str "<img src=" (first args) "/>")))
 (selmer/render "{% image \"http://foo.com/logo.jpg\" %}" {})
 
 ;; {% uppercase %}
@@ -33,7 +33,7 @@
 ;; {% enduppercase %}
 (selmer/add-tag!
  :uppercase
- (fn [args context-map block]
+ (fn [_ _ block]
    (.toUpperCase (get-in block [:uppercase :content])))
  :enduppercase)
 (selmer/render "{% uppercase %}foo {{bar}} baz{% enduppercase %}" {:bar "injected"})
