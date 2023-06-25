@@ -4,7 +4,8 @@
    [muuntaja.middleware :as muuntaja]
    [ring.adapter.jetty :as jetty]
    [ring.middleware.reload :refer [wrap-reload]]
-   [ring.util.http-response :as response]))
+   [ring.util.http-response :as response]
+   [clojure.core :as c]))
 
 (defn html-handler [request-map]
   (response/ok
@@ -38,7 +39,14 @@
 
 (def handler
   (reitit/ring-handler
-   (reitit/router routes)))
+   (reitit/router routes)
+   (reitit/create-default-handler
+    {:not-found
+     (c/constantly (response/not-found "404 - Page not found"))
+     :method-not-allowed
+     (c/constantly (response/method-not-allowed "405 - Not allowed"))
+     :not-acceptable
+     (c/constantly (response/not-acceptable "406 - Not acceptable"))})))
 
 (defn -main []
   (jetty/run-jetty
