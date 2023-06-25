@@ -1,7 +1,19 @@
 (ns ring-app.templating
   (:require
    [selmer.parser :as selmer]
-   [selmer.filters :as filters]))
+   [selmer.filters :as filters]
+   [selmer.middleware :refer [wrap-error-page]]
+   ))
+
+;; Set default error page when something's wrong
+(defn renderer []
+  (wrap-error-page
+    (fn [template]
+      {:status 200 :body (selmer/render-file template {})}))
+  )
+
+((renderer) "hello.html")
+((renderer) "error.html")
 
 ;; Use selmer to create HTML template
 (selmer/render-file "hello.html" {:name "Hoon" :items (range 10)})
