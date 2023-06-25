@@ -1,5 +1,6 @@
 (ns ring-app.core
   (:require
+   [reitit.ring :as reitit]
    [muuntaja.middleware :as muuntaja]
    [ring.adapter.jetty :as jetty]
    [ring.middleware.reload :refer [wrap-reload]]
@@ -15,8 +16,6 @@
   (response/ok
    {:result (get-in request [:body-params :id])}))
 
-(def handler json-handler)
-
 ;; We can create our own middlewares
 (defn wrap-nocache [handler]
   (fn [request]
@@ -28,6 +27,19 @@
   (-> handler
       (muuntaja/wrap-format)))
 
+(def routes
+  [["/"         html-handler]
+   ["/echo/:id" {:get
+                 (fn [{{:keys [id]} :path-params}]
+                   (response/ok (str "<p>the value is: " id "</p>")))}]
+   ["/api"      {:middleware [wrap-formats]}
+    ["/multiply" {:post (fn [{{:keys [a b]} :body-params}]
+                          (response/ok {:result (* a b)}))}]]])
+
+(def handler
+  (reitit/ring-handler
+   (reitit/router routes)))
+
 (defn -main []
   (jetty/run-jetty
     ;; To properly use `wrap-reload`, we should read/update
@@ -37,7 +49,6 @@
     ;; But using #'handler is a better way for readability.
    (-> #'handler
        wrap-nocache
-       wrap-formats
        wrap-reload)
    {:port 3333
     :join? false}))
