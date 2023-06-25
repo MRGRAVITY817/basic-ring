@@ -7,6 +7,7 @@
                  [metosin/reitit "0.5.11"]
                  [metosin/muuntaja "0.6.7"]
                  [metosin/ring-http-response "0.9.1"]
-                 [ring "1.8.2"]]
+                 [ring "1.8.2"]
+                 [selmer "1.12.31"]]
   :repl-options {:init-ns ring-app.core}
   :main ring-app.core)

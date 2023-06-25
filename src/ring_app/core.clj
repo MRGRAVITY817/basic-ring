@@ -5,7 +5,16 @@
    [ring.adapter.jetty :as jetty]
    [ring.middleware.reload :refer [wrap-reload]]
    [ring.util.http-response :as response]
+   [selmer.parser :as selmer]
    [clojure.core :as c]))
+
+;; Use selmer to create HTML template
+(selmer/render-file "hello.html" {:name "Hoon" :items (range 10)})
+;; We can also designate the dfeault resource path
+;; (selmer.parser/set-resource-path! "/var/html/templates/")
+(selmer/render
+ "<p>Hello {{user.first}} {{user.last}}!</p>"
+ {:user {:first "Hoon" :last "Wee"}})
 
 (defn html-handler [request-map]
   (response/ok
